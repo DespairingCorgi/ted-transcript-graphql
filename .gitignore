@@ -1,0 +1,5 @@
+#txt files
+*.txt
+
+#pycache
+/__pycache__/
