@@ -158,32 +158,19 @@ def get_langlist(vid):
         raise Exception(f"{vid} got error")
     
     json_object = res.json()
-    langlist = [e["node"]["internalLanguageCode"] for e in json_object["data"]["video"]["publishedSubtitleLanguages"]["edges"]]
+    langlst = [e["node"]["internalLanguageCode"] for e in json_object["data"]["video"]["publishedSubtitleLanguages"]["edges"]]
     
     print("=========================================")
-    print(f"Available Languages: {len(langlist)}")
-    for l in langlist:
+    print(f"Available Languages: {len(langlst)}")
+    for l in langlst:
         print(l)
     print("=========================================")
-    return json_object
+    return json_object, langlst
     
 
 def parse_url(url):
     splitted_url = url.split('/')
     return splitted_url[-2] if splitted_url[-1] == 'transcript' else splitted_url[-1]
-
-# def get_transcript(vid, lang):
-#     query_var = {"videoId": vid, "language":lang}
-#     res = requests.post(URL, json={"query": GETTRASCRPITION_QUERY, "variables":query_var})
-    
-#     if res.status_code!=200:
-#         raise Exception(f"no connection: {lang}\n{vid}")
-    
-#     if res.json()['errors']:
-#         raise Exception(f"{vid} got error on {lang}")
-    
-#     return res.json()
-
 
 def parse_data(jsonData, lang):
     
@@ -265,75 +252,6 @@ def parse_data(jsonData, lang):
             f.write(json.dumps(curmeta, ensure_ascii=False, indent=4))
         raise Exception(f'there is no transcription of {lang}')
 
-# slug = "mesmin_destin_how_everyday_interactions_shape_your_future" such things...
-
-def get_all_transcriptions(slug):
-    
-    try:
-        initialdata = get_langlist(slug)
-        #print(initialdata)
-    except Exception as e:
-        print("connection error occurred")
-        raise
-    
-    
-    try:
-        langList = [e["node"]["internalLanguageCode"] for e in initialdata["data"]["video"]["publishedSubtitleLanguages"]["edges"]]
-    except:
-        raise Exception("language does not exits")        
-    
-    for l in langList:
-        try:
-            jsonData = get_data(slug, l)
-            #break #must be commmented
-        except Exception as e:
-            print(str(e))
-            break            
-        try:
-            parse_data(jsonData,l)
-            #break
-        except Exception as e:
-            print(str(e))
-            #break #must be commented
-            continue
-        
-        #break #must be commented
-        
-#get_all_transcriptions("mia_kami_mana_salt_water")
-
-# jsonData = get_data(URL, "keenan_norris_one_of_the_most_dangerous_men_in_american_history", 'vi')
-# parse_data(jsonData, 'vi')
-FILENAME='ted_talks_url.txt'
-FINISHED='finished.txt'
-
-def save_transcripts(slugs):
-    with open(f'./{FINISHED}', 'r') as f:
-        finished_slugs = f.read().split('\n')
-    
-    f = open(f'./{FINISHED}', 'a+')
-    
-    for i,s in enumerate(slugs):
-        if s not in finished_slugs:
-            try:
-                get_all_transcriptions(s)
-            except:
-                print(f"error from {s}")
-                raise
-            finished_slugs.append(s)
-            if not f.read() and not i:
-                f.write(s)
-            else:
-                f.write('\n'+s)
-    
-    print("successfully finished:", slugs)
-    
-    f.close()
-
-
-def get_all_transcriptions_from_file():
-    with open(f'./{FILENAME}', 'r') as f:
-        slugs = [x.split('/')[-1] for x in f.read().split('\n')]
-    save_transcripts(slugs)
 
 def get_recent_videos(n):
     '''
@@ -346,10 +264,6 @@ def get_recent_videos(n):
     slugs = [e["node"]["slug"] for e in edges]
     
     return slugs
-
-#get_all_transcriptions_from_file()
-# example_url='tony_long_the_outlaws_of_the_ocean_and_how_we_re_reeling_them_in'
-# print(get_data(example_url))
 
 def parse_data2(jsonData, lang):
     # Title 정제
